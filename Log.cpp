@@ -7,7 +7,7 @@ std::string LOG::m_logBuffer = " ";
 HANDLE LOG::m_fileHandle = INVALID_HANDLE_VALUE;
 std::mutex LOG::m_logMutex;
 // 临界区：每个线程中访问临界资源的那段代码，无论软硬件资源，多个线程必须互斥地对它进行访问
-// CRITICAL_SECTION
+CRITICAL_SECTION criticalSection;
 
 
 
@@ -44,6 +44,7 @@ LOG::LOG( LOGLEVEL level )
 
 LOG::~LOG( )
 {
+	DeleteCriticalSection( &criticalSection );
 }
 
 /**
@@ -188,6 +189,8 @@ int LOG::writeLog(
 	const char * format,
 	... )
 {
+	EnterCriticalSection( &criticalSection );
+
 	// yyyy-mm-dd HH:MM:SS.sss
 	char timeBuffer[ 128 ];
 	int ret = getSysTime( timeBuffer );
@@ -226,6 +229,7 @@ int LOG::writeLog(
 	{
 		m_logBuffer.clear( );
 	}
+	LeaveCriticalSection( &criticalSection );
 
 	return 0;
 }
