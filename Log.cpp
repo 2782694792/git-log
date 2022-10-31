@@ -7,7 +7,7 @@ std::string LOG::m_logBuffer = " ";
 HANDLE LOG::m_fileHandle = INVALID_HANDLE_VALUE;
 std::mutex LOG::m_logMutex;
 // 临界区：每个线程中访问临界资源的那段代码，无论软硬件资源，多个线程必须互斥地对它进行访问
-CRITICAL_SECTION criticalSection;
+CRITICAL_SECTION LOG::criticalSection;
 
 
 
@@ -44,7 +44,7 @@ LOG::LOG( LOGLEVEL level )
 
 LOG::~LOG( )
 {
-	DeleteCriticalSection( &criticalSection );
+	uninit( );
 }
 
 /**
@@ -59,6 +59,7 @@ void LOG::init( LOGLEVEL loglevel, LOGTARGET logtarget )
 	setLogLevel( loglevel );
 	setLogTarget( logtarget );
 	createFile( );
+	InitializeCriticalSection( &criticalSection );
 }
 
 void LOG::uninit( )
@@ -67,6 +68,7 @@ void LOG::uninit( )
 	{
 		CloseHandle( m_fileHandle );
 	}
+	DeleteCriticalSection( &criticalSection );
 }
 
 LOG * LOG::getInstance( )
@@ -202,8 +204,8 @@ int LOG::writeLog(
 	char locInfo[ 128 ];
 	char * format2 = (char *) ( "[PID:%4d][TID:%4d][%s][-%s][%s:%4d]" );
 	int ret2 = printfToBuffer( locInfo, 128, format2
-							   , GetCurrentProcessId
-							   , GetCurrentThreadId
+							   , GetCurrentProcessId( )
+							   , GetCurrentThreadId()
 							   , logLevel
 							   , filename
 							   , function

@@ -110,6 +110,8 @@ private:
 
     static std::string m_logBuffer;
 
+    static CRITICAL_SECTION criticalSection;
+
     LOGLEVEL m_logLevel;
 
     LOGTARGET m_logTarget;
