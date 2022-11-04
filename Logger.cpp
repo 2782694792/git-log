@@ -20,7 +20,7 @@ const char * Logger::m_scLevel[ LEVEL_COUNT ]{
 
 Logger * Logger::m_sInstance = NULL;
 
-Logger::Logger( ) : m_maxLen( 0 ), m_level( LEVEL_INFO ), m_len( 0 )
+Logger::Logger( ) : m_level( LEVEL_INFO ), m_len( 0 ), m_maxLen( 0 ), m_fileName("Logger.log" )
 {
 	std::cout << "(bin::utility) begin logging" << std::endl;
 }
@@ -55,10 +55,10 @@ void Logger::open( const string & fileName )
 	m_len = m_fOut.tellp( );
 }
 
-void Logger::open( const string & fileName, int bytes )
+void Logger::open( const string & fileName, int fileMaxLen )
 {
 	open( fileName );
-	setFile_maxLen( bytes );
+	setFile_maxLen( fileMaxLen );
 }
 
 void Logger::close( )
@@ -89,12 +89,13 @@ void Logger::log( Level level, const char * file, const int line, const char * f
 	}
 
 	// time formatting
-	time_t now = time( NULL );
-	struct tm ptm;
+	time_t now;
+	time( &now );
+	struct tm ptm{ 0 };
 	localtime_s( &ptm, &now );
-	char timestamp[ 24 ]; // 单位4 的倍数
+	char timestamp[ 24 ];
 	memset( timestamp, 0, sizeof( timestamp ) );
-	strftime( timestamp, sizeof( timestamp ), "%Y-%m-%d %H:%M:%S", &ptm );
+	strftime( timestamp, sizeof( timestamp ), ".%Y-%m-%d_%H-%M-%S", &ptm );
 
 	// output formatting
 	//2022-10-10 10:10:10->DEBUG    @ Logger.cpp: 35
@@ -146,12 +147,13 @@ void Logger::rotate( )
 	close( );
 
 	// 建立新文件
-	time_t now = time( NULL );
-	struct tm * ptm{ 0 };
-	localtime_s( ptm, &now );
+	time_t now;
+	time( &now );
+	struct tm ptm;
+	localtime_s( &ptm, &now );
 	char timestamp[ 24 ];
 	memset( timestamp, 0, sizeof( timestamp ) );
-	strftime( timestamp, sizeof( timestamp ), ".%Y-%m-%d_%H-%M-%S", ptm );
+	strftime( timestamp, sizeof( timestamp ), ".%Y%m%d-%H%M%S", &ptm );
 	string filename = m_fileName + timestamp;
 
 	// 文件内容转移到新文件
@@ -160,8 +162,9 @@ void Logger::rotate( )
 		/*size_t errmsglen = strerrorlen_s( errno ) + 1;
 		char errmsg[ errmsglen ];
 		strerror_s( errmsg, errmsglen, errno );*/
-		//throw std::logic_error( "rename log file failed !" );
-		throw std::logic_error( "rename log file failed: " + string( strerror( errno ) ) );
+		throw std::logic_error( "rename log file failed !" );
+		//throw std::logic_error( "rename log file failed: " + string( strerror( errno ) ) );
+
 	}
 
 	// 打开原文件

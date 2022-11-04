@@ -65,7 +65,7 @@ namespace bin
 			void level( int level );
 
 			void open( const string & fileName );
-			void open( const string & fileName, int bytes );
+			void open( const string & fileName, int fileMaxLen );
 
 			void close( );
 			void setFile_maxLen( int bytes );

@@ -1,12 +1,15 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <Windows.h>
 #include <iostream>
 #include <tchar.h>
 #include <mutex>
 #include <string>
+#include <atlconv.h>
 
 
 #define FILENAME(x) strrchr(x,'\\') ? strrchr(x,'\\')+1:x
@@ -27,6 +30,8 @@
     , (__FUNCTION__), (__LINE__), format, ##__VA_ARGS__)
 #define LOG_TRACE(format, ...)    LOG::getInstance()->writeLog(LOG_LEVEL_TRACE, (FILENAME(__FILE__)) \
     , (__FUNCTION__), (__LINE__), format, ##__VA_ARGS__)
+
+
 #define ENTER() LOG_INFO("enter")
 #define EXIT()  LOG_INFO("exit")
 #define FAIL()  LOG_ERROR("fail")
@@ -65,6 +70,7 @@ enum LOGTARGET
  * Description : 日志单例类
  * Other :
  * ---- 1. 单例获取 ： getInstance( )
+ * ---- 2. 日记翻滚 ： rotate( )
  */
 class LOG
 {
@@ -92,6 +98,15 @@ public:
         ...
     );
 
+    //void setFileName( std::string name );
+    //std::string getFileName( );
+
+    void setFileMaxLen( int bytes );
+    int getFileMaxLen( );
+
+    //void setFileLen( int bytes );
+    //int getFileLen( );
+
     static void outputToTarget( );
 
 private:
@@ -102,6 +117,7 @@ private:
     ~LOG( );
 
     static const char * m_ccLogLevel[ LOG_LEVEL_COUNT ];
+    static void rotate( );
 
     static LOG * m_log;
 
@@ -117,6 +133,10 @@ private:
     LOGTARGET m_logTarget;
 
     static HANDLE m_fileHandle;
+
+    std::string m_fileName;
+    int m_fileLen;
+    int m_maxLen;
 
 };
 
