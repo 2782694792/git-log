@@ -6,6 +6,8 @@
 #define TIMEBUFFERLEN 32
 #define MAXCONTENT MAXCHAR
 
+using namespace bin::log;
+
 LOG * LOG::m_log = NULL;
 std::string LOG::m_logBuffer = " ";
 HANDLE LOG::m_fileHandle = INVALID_HANDLE_VALUE;

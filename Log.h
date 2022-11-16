@@ -11,7 +11,10 @@
 #include <string>
 #include <atlconv.h>
 
-
+namespace bin
+{
+	namespace log
+	{
 #define FILENAME(x) strrchr(x,'\\') ? strrchr(x,'\\')+1:x
 
 #define LOG_DEBUG(format, ...) LOG::getInstance()->writeLog(LOG_LEVEL_DEBUG, (FILENAME(__FILE__)) \
@@ -39,106 +42,108 @@
 
 
 
-enum LOGLEVEL
-{
-    LOG_LEVEL_ALL,
-    LOG_LEVEL_TRACE,
-    LOG_LEVEL_DEBUG,
-    LOG_LEVEL_INFO,
-    LOG_LEVEL_WARN,
-    LOG_LEVEL_ERROR,
-    LOG_LEVEL_FATAL,
-    LOG_LEVEL_OFF,
-    LOG_LEVEL_COUNT
-};
+		enum LOGLEVEL
+		{
+			LOG_LEVEL_ALL,
+			LOG_LEVEL_TRACE,
+			LOG_LEVEL_DEBUG,
+			LOG_LEVEL_INFO,
+			LOG_LEVEL_WARN,
+			LOG_LEVEL_ERROR,
+			LOG_LEVEL_FATAL,
+			LOG_LEVEL_OFF,
+			LOG_LEVEL_COUNT
+		};
 
 
-enum LOGTARGET
-{
-    LOG_TARGET_NONE = 0x00,
-    LOG_TARGET_CONSOLE = 0x01,
-    LOG_TARGET_FILE = 0x10
-};
+		enum LOGTARGET
+		{
+			LOG_TARGET_NONE = 0x00,
+			LOG_TARGET_CONSOLE = 0x01,
+			LOG_TARGET_FILE = 0x10
+		};
 
 
-/**
- * Company : OPT
- * FileName : Log.h
- * Author :  ZhengShuoBin
- * Version : V1.0.0
- * Date : 2022-10-29
- * Description : 日志单例类
- * Other :
- * ---- 1. 单例获取 ： getInstance( )
- * ---- 2. 日记翻滚 ： rotate( )
- */
-class LOG
-{
-public:
+		/**
+		 * Company : OPT
+		 * FileName : Log.h
+		 * Author :  ZhengShuoBin
+		 * Version : V1.0.0
+		 * Date : 2022-10-29
+		 * Description : 日志单例类
+		 * Other :
+		 * ---- 1. 单例获取 ： getInstance( )
+		 * ---- 2. 日记翻滚 ： rotate( )
+		 */
+		class LOG
+		{
+		public:
 
-    void init( LOGLEVEL loglevel, LOGTARGET logtarget );
-    void uninit( );
+			void init( LOGLEVEL loglevel, LOGTARGET logtarget );
+			void uninit( );
 
-    int createFile( );
+			int createFile( );
 
-    static LOG * getInstance( );
+			static LOG * getInstance( );
 
-    int getLogLevel( );
-    void setLogLevel( LOGLEVEL loglevel );
+			int getLogLevel( );
+			void setLogLevel( LOGLEVEL loglevel );
 
-    LOGTARGET getLogTarget( );
-    void setLogTarget( LOGTARGET logtarget );
+			LOGTARGET getLogTarget( );
+			void setLogTarget( LOGTARGET logtarget );
 
-    static int writeLog(
-        LOGLEVEL loglevel,
-        const char * filename,
-        const char * function,
-        int linenumber,
-        const char * format,
-        ...
-    );
+			static int writeLog(
+				LOGLEVEL loglevel,
+				const char * filename,
+				const char * function,
+				int linenumber,
+				const char * format,
+				...
+			);
 
-    //void setFileName( std::string name );
-    //std::string getFileName( );
+			//void setFileName( std::string name );
+			//std::string getFileName( );
 
-    void setFileMaxLen( int bytes );
-    int getFileMaxLen( );
+			void setFileMaxLen( int bytes );
+			int getFileMaxLen( );
 
-    //void setFileLen( int bytes );
-    //int getFileLen( );
+			//void setFileLen( int bytes );
+			//int getFileLen( );
 
-    static void outputToTarget( );
+			static void outputToTarget( );
 
-private:
-    LOG( );
-    LOG( LOGLEVEL level, LOGTARGET target );
-    LOG( LOGTARGET target );
-    LOG( LOGLEVEL level );
-    ~LOG( );
+		private:
+			LOG( );
+			LOG( LOGLEVEL level, LOGTARGET target );
+			LOG( LOGTARGET target );
+			LOG( LOGLEVEL level );
+			~LOG( );
 
-    static const char * m_ccLogLevel[ LOG_LEVEL_COUNT ];
-    static void rotate( );
+			static const char * m_ccLogLevel[ LOG_LEVEL_COUNT ];
+			static void rotate( );
 
-    static LOG * m_log;
+			static LOG * m_log;
 
-    // 互斥锁
-    static std::mutex m_logMutex;
+			// 互斥锁
+			static std::mutex m_logMutex;
 
-    static std::string m_logBuffer;
+			static std::string m_logBuffer;
 
-    static CRITICAL_SECTION criticalSection;
+			static CRITICAL_SECTION criticalSection;
 
-    LOGLEVEL m_logLevel;
+			LOGLEVEL m_logLevel;
 
-    LOGTARGET m_logTarget;
+			LOGTARGET m_logTarget;
 
-    static HANDLE m_fileHandle;
+			static HANDLE m_fileHandle;
 
-    std::string m_fileName;
-    int m_fileLen;
-    int m_maxLen;
+			std::string m_fileName;
+			int m_fileLen;
+			int m_maxLen;
 
-};
+		};
+	}
+}
 
 
 #endif
